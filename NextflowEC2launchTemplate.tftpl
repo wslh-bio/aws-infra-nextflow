@@ -1,0 +1,44 @@
+#cloud-config
+write_files:
+  - path: /root/wslh-nextflow.sh
+    permissions: 0744
+    owner: root
+    content: |
+      #!/usr/bin/env bash
+      export PATH=/usr/local/bin:$PATH
+      USER=/home/ec2-user
+
+      ## install dependencies
+      yum install -q -y sed btrfs-progs lvm2 jq git wget amazon-cloudwatch-agent
+
+      ## install miniconda
+      cd $USER
+      mkdir -p $USER/miniconda
+      wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $USER/miniconda/miniconda.sh
+      bash $USER/miniconda/miniconda.sh -b -u -p $USER/miniconda
+      rm -rf $USER/miniconda/miniconda.sh
+      chown -R ec2-user:ec2-user $USER/miniconda
+      su -lc "~/miniconda/bin/conda init bash" ec2-user
+
+      # install aws cli
+      su -lc "pip install awscli boto3" ec2-user
+      ln -s /home/ec2-user/miniconda/bin/aws /usr/bin/aws
+
+      ## setup cloudwatch config
+      wget https://nf-xpack.s3.amazonaws.com/amazon-cloudwatch-agent/config-v0.3.json -O cloudwatch-config.json
+      cat cloudwatch-config.json | sed 's/$FORGE_ID/Nextflow/g' > /opt/aws/amazon-cloudwatch-agent/bin/config.json
+      amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
+
+      ## install ebs autoscale
+      systemctl stop docker
+      cp -au /var/lib/docker /var/lib/docker.bk
+      rm -rf /var/lib/docker/*
+      cd /opt && git clone https://github.com/awslabs/amazon-ebs-autoscale.git
+      sed -i 's+Restart=always+Restart=always\nEnvironment="AWS_MAX_ATTEMPTS=10"+g' amazon-ebs-autoscale/service/systemd/ebs-autoscale.service
+      sh /opt/amazon-ebs-autoscale/install.sh -i -s 100 -m /var/lib/docker
+      sed -i 's+^DOCKER_STORAGE_OPTIONS=.*+DOCKER_STORAGE_OPTIONS="--storage-driver btrfs"+g' /etc/sysconfig/docker-storage
+      cp -au /var/lib/docker.bk/* /var/lib/docker
+      systemctl start docker
+      systemctl enable --now --no-block ecs
+runcmd:
+  - bash /root/wslh-nextflow.sh
