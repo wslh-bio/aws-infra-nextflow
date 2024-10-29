@@ -5,6 +5,9 @@ Terraform configuration for managing infrastructure responsible for running Next
 #### Infrastructure Diagram
 ![infrastructure block diagram](aws-infra-nextflow.png "aws-infra-nextflow")
 
+### Setup Notes
+The tfvars file is intentionally omitted from this repository so variables will need to be defined at the command line or in an input variable file. Additionally, this repo is configured to use S3 in combination with dynamodb to manage the state and lock status, you will need to change the backend configuration to match your own settings.
+
 ### File List
 | File Name | Description |
 | --- | --- |
