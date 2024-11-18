@@ -1,0 +1,50 @@
+{
+  "jobDefinitionName": "nxtLauncher-jdv1-0-0-quay-io-seqeralabs-nf-launcher-j17-23-04-1",
+  "type": "container",
+  "parameters": {
+    "towr-token": ""
+  },
+  "containerProperties": {
+    "image": "quay.io/seqeralabs/nf-launcher:j17-23.04.1",
+    "command": [
+      "true"
+    ],
+    "volumes": [
+      {
+        "host": {
+          "sourcePath": "/home/ec2-user/miniconda"
+        },
+        "name": "aws-cli"
+      }
+    ],
+    "environment": [],
+    "mountPoints": [
+      {
+        "containerPath": "/home/ec2-user/miniconda",
+        "readOnly": true,
+        "sourceVolume": "aws-cli"
+      }
+    ],
+    "ulimits": [],
+    "resourceRequirements": [
+      {
+        "value": "1",
+        "type": "VCPU"
+      },
+      {
+        "value": "1024",
+        "type": "MEMORY"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/batch/nxtLauncher/job",
+        "awslogs-region": "us-east-2"
+      },
+      "secretOptions": []
+    },
+    "secrets": []
+  },
+  "tags": {}
+}

@@ -1,0 +1,18 @@
+[
+    {
+        "name": "NXF_IGNORE_RESUME_HISTORY",
+        "value": "true"
+    },
+    {
+        "name": "AWS_MAX_ATTEMPTS",
+        "value": "10"
+    },
+    {
+        "name": "NXF_DEFAULT_DSL",
+        "value": "2"
+    },
+    {
+        "name": "NXF_ANSI_LOG",
+        "value": "true"
+    }
+]
