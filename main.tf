@@ -349,8 +349,8 @@ resource "aws_batch_compute_environment" "nextflow_job" {
     }
     instance_role = aws_iam_instance_profile.nextflow_instance_role.arn
     spot_iam_fleet_role = aws_iam_role.spot_fleet_role.arn
-    allocation_strategy = "BEST_FIT_PROGRESSIVE"
-    bid_percentage = 80
+    allocation_strategy = "BEST_FIT"
+    #bid_percentage = 80
 
     instance_type = var.job_compute_family
 
@@ -361,7 +361,7 @@ resource "aws_batch_compute_environment" "nextflow_job" {
 
     subnets = data.aws_subnets.nextflow_subnets.ids
 
-    type = "SPOT"
+    type = "EC2"
     launch_template {
       launch_template_id = aws_launch_template.nextflow_template_job.id
     }
@@ -381,7 +381,7 @@ resource "aws_batch_compute_environment" "nextflow_job" {
   }
 }
 
-resource "aws_ecs_tag" "nextflow_spot_project" {
+resource "aws_ecs_tag" "nextflow_job_project" {
   resource_arn = aws_batch_compute_environment.nextflow_job.ecs_cluster_arn
   key          = "Project"
   value        = var.project
