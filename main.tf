@@ -199,6 +199,12 @@ resource "aws_iam_role_policy_attachment" "ecs_instance_role_ec2" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+#### Attach SSM Agent service Role
+resource "aws_iam_role_policy_attachment" "ssmagent_role" {
+  role       = aws_iam_role.nextflow_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 #### Attach CloudWatch Policy
 resource "aws_iam_role_policy_attachment" "ecs_instance_role_cloudwatch" {
   role       = aws_iam_role.nextflow_instance_role.name
