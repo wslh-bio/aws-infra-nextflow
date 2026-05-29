@@ -43,5 +43,20 @@ write_files:
       cp -au /var/lib/docker.bk/* /var/lib/docker
       systemctl start docker
       systemctl enable --now --no-block ecs
+
+      ## install s3 mountpoint
+      wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.rpm
+      yum install -q -y ./mount-s3.rpm
+      rm ./mount-s3.rpm
+
+      ## mount buckets
+      mkdir -p /s3
+      echo "user_allow_other" >> /etc/fuse.conf
+      %{ for bucket in buckets ~}
+      mkdir -p /s3/${bucket}
+      mount-s3 ${bucket} /s3/${bucket} --allow-other
+      %{ endfor ~}
+      mount --make-shared /s3
+
 runcmd:
   - bash /root/wslh-nextflow.sh
